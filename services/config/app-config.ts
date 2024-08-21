@@ -4,6 +4,10 @@ export const CONSTANTS = {
     app_name: '/api/method/summitapp.sdk.api',
     version: 'v2',
   },
+  ARC_APP_CONFIG: {
+    app_name: '/api/method/arcapp.sdk.api',
+    version: 'v1',
+  },
   ALLOW_GUEST_TO_ACCESS_SITE_EVEN_WITHOUT_AUTHENTICATION: false,
   ENABLE_META_TAGS: false,
   ENABLE_LOGIN_USING_OTP: false,
