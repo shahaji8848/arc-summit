@@ -1,10 +1,11 @@
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { useRouter } from 'next/router';
+import { toast } from 'react-toastify';
 import { TypeLoginAPIParams, TypeLoginForm } from '../../interfaces/login-params-interface';
 import getTokenFromLoginAPI from '../../services/api/auth/get-token-from-login-api';
-import { storeToken } from '../../store/slices/auth/token-login-slice';
 import { CONSTANTS } from '../../services/config/app-config';
+import { storeToken } from '../../store/slices/auth/token-login-slice';
 
 const useLoginHook = () => {
   const { SUMMIT_APP_CONFIG } = CONSTANTS;
@@ -33,11 +34,9 @@ const useLoginHook = () => {
       localStorage.setItem('user', values.usr);
       localStorage.setItem('party_name', tokenData?.data?.full_name);
       router.push('/');
-      setTimeout(() => {
-        // showToast('Login Successfully', 'success');
-      }, 1200);
+        toast.success('Login Successfully');
     } else {
-      // showToast('Invalid Credentials. Please try again.', 'error');
+      toast.error('Invalid Credentials. Please try again.');
     }
   };
   return { passwordHidden, togglePasswordIcon, fetchToken };
