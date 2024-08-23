@@ -34,8 +34,8 @@ const useAddToCartHook = () => {
     }
   };
   const addToCartItem = async (params: any, setCartListingItems?: any) => {
-    const postDataInCart = await PostAddToCartAPI(SUMMIT_APP_CONFIG, params, tokenFromStore?.token);
-    if (postDataInCart?.msg === 'success') {
+    const postDataInCart = await PostAddToCartAPI(ARC_APP_CONFIG, params, tokenFromStore?.token);
+    if (postDataInCart?.status === 200 && postDataInCart?.data?.message?.msg === 'success') {
       dispatch(addItemToCart(params?.item_code));
       if (setCartListingItems) {
         getCartList(setCartListingItems);
