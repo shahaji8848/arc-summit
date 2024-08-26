@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import fetchCartListingAPI from '../../services/api/cart-apis/cart-listing-api';
+import { CONSTANTS } from '../../services/config/app-config';
 import { get_access_token } from '../../store/slices/auth/token-login-slice';
 import { addCartList, selectCart } from '../../store/slices/cart-slices/cart-local-slice';
 import useHandleStateUpdate from '../GeneralHooks/handle-state-update-hook';
-import { CONSTANTS } from '../../services/config/app-config';
 const useFetchCartItems = () => {
   const dispatch = useDispatch();
-  const { SUMMIT_APP_CONFIG, ARC_APP_CONFIG }: any = CONSTANTS;
+  const {  ARC_APP_CONFIG }: any = CONSTANTS;
   const [cartListingItems, setCartListingItems] = useState<any>({});
   const { isLoading, setIsLoading, errorMessage, setErrMessage }: any = useHandleStateUpdate();
   const tokenFromStore: any = useSelector(get_access_token);
@@ -21,6 +21,7 @@ const useFetchCartItems = () => {
     try {
       let cartListingData: any = await fetchCartListingAPI(ARC_APP_CONFIG, tokenFromStore.token);
       if (cartListingData?.status === 200 && cartListingData?.data?.message?.msg === 'success') {
+        localStorage.setItem('cust_name', cartListingData?.data?.message?.data?.cust_name?cartListingData?.data?.message?.data?.cust_name : '' );
         if (Object.keys(cartListingData?.data?.message?.data).length !== 0) {
           setCartListingItems(cartListingData?.data?.message?.data);
           let cartData = extractProductCodes(cartListingData?.data?.message?.data?.categories);
