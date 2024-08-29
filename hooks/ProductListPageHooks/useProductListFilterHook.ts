@@ -9,7 +9,7 @@ import useHandleStateUpdate from '../GeneralHooks/handle-state-update-hook';
 const useProductListingFilterHook = () => {
   const router: any = useRouter();
   const { query } = useRouter();
-  const { SUMMIT_API_SDK }: any = CONSTANTS;
+  const { SUMMIT_APP_CONFIG }: any = CONSTANTS;
   const { isLoading, setIsLoading, errorMessage, setErrMessage }: any = useHandleStateUpdate();
   const tokenFromStore: any = useSelector(get_access_token);
 
@@ -24,7 +24,7 @@ const useProductListingFilterHook = () => {
         query: query,
         token: tokenFromStore?.token,
       };
-      const getFiltersData: any = await fetchProductListingPageFilters(SUMMIT_API_SDK, reqParams, tokenFromStore?.token);
+      const getFiltersData: any = await fetchProductListingPageFilters(SUMMIT_APP_CONFIG, reqParams, tokenFromStore?.token);
       if (getFiltersData?.data?.message?.msg === 'success') {
         setFiltersData(getFiltersData?.data?.message?.data);
         setIsLoading(false);
@@ -54,7 +54,7 @@ const useProductListingFilterHook = () => {
     } else {
       setSelectedFilters([]);
     }
-  }, [query?.category]);
+  }, [query]);
 
   const handleFilterCheckFun = async (event: any) => {
     let duplicateFilters: any;
