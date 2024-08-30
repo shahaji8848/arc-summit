@@ -27,6 +27,7 @@ const useNavbar = () => {
       logoutAPIResponse = await logoutUser(null, TokenFromStore?.token);
       if (logoutAPIResponse?.status === 200) {
         dispatch(resetStore());
+        localStorage.clear();
         router.push('/login');
       }
     } catch (error) {
