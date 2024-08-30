@@ -7,9 +7,10 @@ import { addCartList, selectCart } from '../../store/slices/cart-slices/cart-loc
 import useHandleStateUpdate from '../GeneralHooks/handle-state-update-hook';
 const useFetchCartItems = () => {
   const dispatch = useDispatch();
-  const {  ARC_APP_CONFIG }: any = CONSTANTS;
+  const { ARC_APP_CONFIG }: any = CONSTANTS;
   const [cartListingItems, setCartListingItems] = useState<any>({});
   const { isLoading, setIsLoading, errorMessage, setErrMessage }: any = useHandleStateUpdate();
+  const local_cust_name = localStorage.getItem('cust_name');
   const tokenFromStore: any = useSelector(get_access_token);
   const { cartCount } = useSelector(selectCart);
 
@@ -21,14 +22,22 @@ const useFetchCartItems = () => {
     try {
       let cartListingData: any = await fetchCartListingAPI(ARC_APP_CONFIG, tokenFromStore.token);
       if (cartListingData?.status === 200 && cartListingData?.data?.message?.msg === 'success') {
-        localStorage.setItem('cust_name', cartListingData?.data?.message?.data?.cust_name?cartListingData?.data?.message?.data?.cust_name : '' );
+        if (local_cust_name === '') {
+          localStorage.setItem(
+            'cust_name',
+            cartListingData?.data?.message?.data?.cust_name ? cartListingData?.data?.message?.data?.cust_name : ''
+          );
+        }
         if (Object.keys(cartListingData?.data?.message?.data).length !== 0) {
           setCartListingItems(cartListingData?.data?.message?.data);
-          let cartData = extractProductCodes(cartListingData?.data?.message?.data?.categories);
-          let quotationId = cartListingData?.data?.message?.data?.name;
+          const cartData = extractProductCodes(cartListingData?.data?.message?.data?.categories);
+          const quotationId = cartListingData?.data?.message?.data?.name;
           dispatch(addCartList({ cartData, quotationId }));
         } else {
           setCartListingItems({});
+          const cartData: any[] = [];
+          const quotationId = '';
+          dispatch(addCartList({ cartData, quotationId }));
         }
       } else {
         setCartListingItems({});
