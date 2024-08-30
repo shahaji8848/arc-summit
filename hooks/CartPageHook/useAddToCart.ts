@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -12,6 +13,7 @@ import { addCartList, addItemToCart, clearCart, removeItemFromCart } from '../..
 
 const useAddToCartHook = () => {
   const dispatch = useDispatch();
+  const router = useRouter();
   const tokenFromStore: any = useSelector(get_access_token);
 
   const { SUMMIT_APP_CONFIG, ARC_APP_CONFIG }: any = CONSTANTS;
@@ -51,8 +53,9 @@ const useAddToCartHook = () => {
     }
   };
   const placeOrderAPIFunc = async (params: any, setCartListingItems: any) => {
-    const placeOrder = await postPlaceOrderAPI(SUMMIT_APP_CONFIG, params, tokenFromStore?.token);
+    const placeOrder = await postPlaceOrderAPI(ARC_APP_CONFIG, params, tokenFromStore?.token);
     if (placeOrder?.data?.message?.msg === 'success') {
+      router.push('/order-history');
       dispatch(clearCart());
       toast.success('Order placed successfully!');
       setCartListingItems({});
