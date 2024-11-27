@@ -1,5 +1,5 @@
 import APP_CONFIG from '../../../interfaces/app-config-interface';
-import { executeGETAPI } from '../../../utils/http-methods';
+import { executeGETAPI, executePOSTAPI } from '../../../utils/http-methods';
 
 /**
  * Fetches Order History data from the API using the given parameters.
@@ -12,7 +12,7 @@ import { executeGETAPI } from '../../../utils/http-methods';
  * @returns {Promise<any>} - The response from the API call.
  * @throws {Error} Throws an error if the API call fails.
  */
-const getOrderListAPI = async (appConfig: APP_CONFIG, status: string, token: any): Promise<any> => {
+export const getOrderListAPI = async (appConfig: APP_CONFIG, status: string, token: any): Promise<any> => {
   const user = localStorage.getItem('user') || '';
   let additionalParams = { user, ...(status && { status }) };
   // Use executeGETAPI to handle GET Request logic
@@ -26,4 +26,17 @@ const getOrderListAPI = async (appConfig: APP_CONFIG, status: string, token: any
   return response;
 };
 
-export default getOrderListAPI;
+export const deletOrderApi = async (appConfig: APP_CONFIG, body: any, token: any): Promise<any> => {
+  const user = localStorage.getItem('user') || '';
+  // let additionalParams = { user, ...(status && { status }) };
+  // Use executeGETAPI to handle GET Request logic
+  const response = await executeGETAPI(
+    appConfig,
+    'sales_order_cancelled.sales_order_cancel',
+    body,
+    token
+    // additionalParams // Pass additional parameters if needed
+  );
+
+  return response;
+};
