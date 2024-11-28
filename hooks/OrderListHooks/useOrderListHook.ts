@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
-import { getOrderListAPI } from '../../services/api/order-apis/order-list-api';
+import { deletOrderApi, getOrderListAPI } from '../../services/api/order-apis/order-list-api';
 import { get_access_token } from '../../store/slices/auth/token-login-slice';
 import useHandleStateUpdate from '../GeneralHooks/handle-state-update-hook';
 import { CONSTANTS } from '../../services/config/app-config';
@@ -61,10 +61,22 @@ const useOrderListHook = () => {
     }
   };
 
-  const deleteBulkOrder = () => {
+  const deleteBulkOrder = async () => {
+    const reqBody = {
+      sales_orders: selectedOrder,
+    };
+
     if (selectedOrder.length > 0) {
+      const deleteOrder = await deletOrderApi(ARC_APP_CONFIG, reqBody, tokenFromStore.token);
+      if (deleteOrder?.status === 200) {
+        // const updatedOrderList = orderListData?.filter((prev: any) => !selectedOrder.some((order: any) => order === prev?.name));
+        // setOrderListData(updatedOrderList);
+        // setSelectedOrders([]);
+        fetchOrderListingDataFun();
+      }
     }
   };
+
   useEffect(() => {
     fetchOrderListingDataFun();
   }, [query]);

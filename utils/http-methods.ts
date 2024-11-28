@@ -71,7 +71,6 @@ export const executeGETAPI = async (
 export const executePOSTAPI = async (frappeAppConfig: APP_CONFIG, apiName: string, apiBody: any, token?: any) => {
   /* GET all the required information about frappe app i.e it's version, method and entity.*/
   const { sdkVersion, method, entity } = getVME(frappeAppConfig, apiName);
-
   const body = {
     version: sdkVersion,
     method,

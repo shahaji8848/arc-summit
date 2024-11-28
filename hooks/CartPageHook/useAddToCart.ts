@@ -11,7 +11,7 @@ import { CONSTANTS } from '../../services/config/app-config';
 import { get_access_token } from '../../store/slices/auth/token-login-slice';
 import { addCartList, addItemToCart, clearCart, removeItemFromCart, selectCart } from '../../store/slices/cart-slices/cart-local-slice';
 import CartListing from '../../components/Cart/CartListing';
-import updateCustNameAPI from '../../services/api/cart-apis/update-cus-name-cart';
+import updateCustNameAPI from '../../services/api/cart-apis/update-customer-name';
 
 const useAddToCartHook = () => {
   const dispatch = useDispatch();
@@ -90,7 +90,11 @@ const useAddToCartHook = () => {
   };
 
   const updateCustNameFunc = async (custName: any) => {
-    const updateCustName = await updateCustNameAPI(SUMMIT_APP_CONFIG, quotation_Id, tokenFromStore?.token, custName);
+    const reqBody = {
+      customer_name: custName,
+      quotation_id: quotation_Id,
+    };
+    const updateCustName = await updateCustNameAPI(ARC_APP_CONFIG, reqBody, tokenFromStore?.token);
     if (updateCustName?.status === 200) {
       toast.success('Customer updated successfully!');
     } else {
