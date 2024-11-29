@@ -4,8 +4,7 @@ import { CONSTANTS } from '../../config/app-config';
 
 const updateCustNameAPI: any = async (appConfig: APP_CONFIG, reqBody?: any, token?: any) => {
   let response: any;
-  const url = 'update-customer-name-api';
-  response = await executePOSTAPI(appConfig, url, reqBody, token);
+  response = await executePOSTAPI(appConfig, 'update-customer-name-api', reqBody, token);
   return response;
 };
 export default updateCustNameAPI;

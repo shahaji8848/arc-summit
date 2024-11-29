@@ -9,6 +9,7 @@ import { CONSTANTS } from '../../services/config/app-config';
 import { deletOrderApi } from '../../services/api/order-apis/order-list-api';
 import { selectCart } from '../../store/slices/cart-slices/cart-local-slice';
 import { PostAddToCartAPI } from '../../services/api/cart-apis/add-to-cart-api';
+import { deleteOrderApi, getUserPermissionsAPI, readyToDispatchApi } from '../../services/api/order-detail-apis/order-update-api';
 
 const useOrderDetailHook = () => {
   const { query } = useRouter();
@@ -22,6 +23,7 @@ const useOrderDetailHook = () => {
   const getCustomerName: any = localStorage.getItem('customer-name');
   const [editableCustomerName, setEditableCustomerName] = useState(orderReOrderCustomerName || getCustomerName);
   const { cartCount } = useSelector(selectCart);
+  const [showButtons, setShowButtons] = useState(false);
 
   const fetchOrderData: any = async () => {
     setIsLoading(true);
@@ -134,17 +136,41 @@ const useOrderDetailHook = () => {
     router.push('/cart');
   };
 
-  const handleDeleteOrder = () => {};
-
   const handleShowButtons = async () => {
-    let orderDetailData: any = await getOrderDetailAPI(ARC_APP_CONFIG, user, tokenFromStore.token);
+    let userPermission: any = await getUserPermissionsAPI(ARC_APP_CONFIG, user, tokenFromStore.token);
+    if (userPermission?.data?.message?.data) {
+      setShowButtons(true);
+    }
+  };
+
+  const handleDeleteOrder = async (itemCode: any) => {
+    const reqBody = {
+      item_code: itemCode,
+      sales_order: query?.orderId,
+    };
+    const deleteOrder = await deleteOrderApi(ARC_APP_CONFIG, reqBody, tokenFromStore?.token);
+    if (deleteOrder?.status === 200) {
+      fetchOrderData();
+    }
+  };
+
+  const handleReadyToDispatch = async (itemCode: any) => {
+    const reqBody = {
+      item_code: itemCode,
+      sales_order: query?.orderId,
+    };
+    let readyToDispatch = await readyToDispatchApi(ARC_APP_CONFIG, reqBody, tokenFromStore.token);
+    if (readyToDispatch?.data?.message?.data) {
+      fetchOrderData();
+    }
   };
 
   useEffect(() => {
     fetchOrderData();
+    handleShowButtons();
   }, [query]);
 
-  return { orderData, isLoading, errorMessage, handleCancelOrder, handleReorder };
+  return { orderData, isLoading, errorMessage, handleCancelOrder, handleReorder, showButtons, handleDeleteOrder, handleReadyToDispatch };
 };
 
 export default useOrderDetailHook;

@@ -10,7 +10,6 @@ import { DeleteItemFromCart } from '../../services/api/cart-apis/remove-item-api
 import { CONSTANTS } from '../../services/config/app-config';
 import { get_access_token } from '../../store/slices/auth/token-login-slice';
 import { addCartList, addItemToCart, clearCart, removeItemFromCart, selectCart } from '../../store/slices/cart-slices/cart-local-slice';
-import CartListing from '../../components/Cart/CartListing';
 import updateCustNameAPI from '../../services/api/cart-apis/update-customer-name';
 
 const useAddToCartHook = () => {
@@ -98,7 +97,7 @@ const useAddToCartHook = () => {
     if (updateCustName?.status === 200) {
       toast.success('Customer updated successfully!');
     } else {
-      toast.error('Failed to Upadet Customer');
+      toast.error('Failed to Upadte Customer');
     }
   };
 

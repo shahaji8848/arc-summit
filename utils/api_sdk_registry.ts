@@ -22,14 +22,15 @@ const apiSdkRegistry: any = {
   'get-cart-list-items-api': { version: '', method: 'get_list', entity: 'cart' },
   'add-cart-api': { version: '', method: 'put_products', entity: 'cart' },
   'clear-cart-api': { version: '', method: 'clear_cart', entity: 'cart' },
-  'update-customer-name-in-quotation-api': { version: '', method: 'get_list', entity: 'cart' },
   'remove-single-item-cart-api': { version: '', method: 'delete_products', entity: 'cart' },
   'order-list-api': { version: '', method: 'get_orders', entity: 'order' },
   'order-detail-api': { version: '', method: 'get_order_detail', entity: 'order' },
-  'order-ready-to-dispatch-permission': { version: '', method: 'ready_to_dispatch_permission', entity: 'user_permission' },
+  'user-permission-api': { version: '', method: 'ready_to_dispatch_permission', entity: 'user_permission' },
   'order-reports-api': { version: '', method: 'report_data', entity: 'sales_order_report' },
-  'order-cancel-api': { version: '', method: 'sales_order_cancel', entity: 'sales_order' },
+  'bulk-order-cancel-api': { version: '', method: 'sales_order_cancel', entity: 'sales_order' },
   'update-customer-name-api': { version: '', method: 'update_customer_name_for_cart', entity: 'cart' },
+  'ready-to-dispatch-api': { version: '', method: 'update_soid_completed_status', entity: 'user_permission' },
+  'delete-order-api': { version: '', method: 'delete_soid_and_child_item', entity: 'user_permission' },
 };
 
 export default apiSdkRegistry;

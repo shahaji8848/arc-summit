@@ -39,6 +39,6 @@ export const getOrderListAPI = async (appConfig: APP_CONFIG, status: string, tok
  */
 
 export const deletOrderApi = async (appConfig: APP_CONFIG, body: any, token: any): Promise<any> => {
-  const response = await executePOSTAPI(appConfig, 'order-cancel-api', body, token);
+  const response = await executePOSTAPI(appConfig, 'bulk-order-cancel-api', body, token);
   return response;
 };
