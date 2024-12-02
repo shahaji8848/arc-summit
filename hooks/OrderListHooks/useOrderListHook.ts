@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
-import getOrderListAPI from '../../services/api/order-apis/order-list-api';
+import { deletOrderApi, getOrderListAPI } from '../../services/api/order-apis/order-list-api';
 import { get_access_token } from '../../store/slices/auth/token-login-slice';
 import useHandleStateUpdate from '../GeneralHooks/handle-state-update-hook';
 import { CONSTANTS } from '../../services/config/app-config';
@@ -11,6 +11,7 @@ const useOrderListHook = () => {
   const { SUMMIT_APP_CONFIG, ARC_APP_CONFIG }: any = CONSTANTS;
   const { query }: any = useRouter();
   const [orderListData, setOrderListData] = useState<any>([]);
+  const [selectedOrder, setSelectedOrders] = useState<string[]>([]);
   const tokenFromStore: any = useSelector(get_access_token);
 
   const fetchOrderListingDataFun: any = async () => {
@@ -52,11 +53,35 @@ const useOrderListHook = () => {
     }
   };
 
+  const handleSelectOrder = (orderId: any) => {
+    if (selectedOrder?.includes(orderId)) {
+      setSelectedOrders(selectedOrder.filter((order: any) => order !== orderId));
+    } else {
+      setSelectedOrders([...selectedOrder, orderId]);
+    }
+  };
+
+  const deleteBulkOrder = async () => {
+    const reqBody = {
+      sales_orders: selectedOrder,
+    };
+
+    if (selectedOrder.length > 0) {
+      const deleteOrder = await deletOrderApi(ARC_APP_CONFIG, reqBody, tokenFromStore.token);
+      if (deleteOrder?.status === 200) {
+        // const updatedOrderList = orderListData?.filter((prev: any) => !selectedOrder.some((order: any) => order === prev?.name));
+        // setOrderListData(updatedOrderList);
+        // setSelectedOrders([]);
+        fetchOrderListingDataFun();
+      }
+    }
+  };
+
   useEffect(() => {
     fetchOrderListingDataFun();
   }, [query]);
 
-  return { orderListData, isLoading, errorMessage };
+  return { orderListData, isLoading, errorMessage, handleSelectOrder, deleteBulkOrder };
 };
 
 export default useOrderListHook;

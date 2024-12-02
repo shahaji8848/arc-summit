@@ -9,13 +9,14 @@ import postPlaceOrderAPI from '../../services/api/cart-apis/place-order-api';
 import { DeleteItemFromCart } from '../../services/api/cart-apis/remove-item-api';
 import { CONSTANTS } from '../../services/config/app-config';
 import { get_access_token } from '../../store/slices/auth/token-login-slice';
-import { addCartList, addItemToCart, clearCart, removeItemFromCart } from '../../store/slices/cart-slices/cart-local-slice';
+import { addCartList, addItemToCart, clearCart, removeItemFromCart, selectCart } from '../../store/slices/cart-slices/cart-local-slice';
+import updateCustNameAPI from '../../services/api/cart-apis/update-customer-name';
 
 const useAddToCartHook = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const tokenFromStore: any = useSelector(get_access_token);
-
+  const { quotation_Id } = useSelector(selectCart);
   const { SUMMIT_APP_CONFIG, ARC_APP_CONFIG }: any = CONSTANTS;
 
   const [disableRemove, setDisableRemove] = useState<boolean>(false);
@@ -76,6 +77,7 @@ const useAddToCartHook = () => {
       setDisableRemove(false);
     }
   };
+
   const cLearCartAPIFunc = async (quotation_id: any) => {
     const clearCartfunc = await DeleteClearCart(SUMMIT_APP_CONFIG, quotation_id, tokenFromStore?.token);
     if (clearCartfunc?.status === 200) {
@@ -86,6 +88,19 @@ const useAddToCartHook = () => {
     }
   };
 
-  return { addToCartItem, placeOrderAPIFunc, RemoveItemCartAPIFunc, cLearCartAPIFunc, disableRemove };
+  const updateCustNameFunc = async (custName: any) => {
+    const reqBody = {
+      customer_name: custName,
+      quotation_id: quotation_Id,
+    };
+    const updateCustName = await updateCustNameAPI(ARC_APP_CONFIG, reqBody, tokenFromStore?.token);
+    if (updateCustName?.status === 200) {
+      toast.success('Customer updated successfully!');
+    } else {
+      toast.error('Failed to Upadte Customer');
+    }
+  };
+
+  return { addToCartItem, placeOrderAPIFunc, RemoveItemCartAPIFunc, cLearCartAPIFunc, disableRemove, updateCustNameFunc };
 };
 export default useAddToCartHook;

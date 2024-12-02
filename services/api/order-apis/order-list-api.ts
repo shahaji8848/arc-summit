@@ -1,5 +1,5 @@
 import APP_CONFIG from '../../../interfaces/app-config-interface';
-import { executeGETAPI } from '../../../utils/http-methods';
+import { executeGETAPI, executePOSTAPI } from '../../../utils/http-methods';
 
 /**
  * Fetches Order History data from the API using the given parameters.
@@ -12,7 +12,7 @@ import { executeGETAPI } from '../../../utils/http-methods';
  * @returns {Promise<any>} - The response from the API call.
  * @throws {Error} Throws an error if the API call fails.
  */
-const getOrderListAPI = async (appConfig: APP_CONFIG, status: string, token: any): Promise<any> => {
+export const getOrderListAPI = async (appConfig: APP_CONFIG, status: string, token: any): Promise<any> => {
   const user = localStorage.getItem('user') || '';
   let additionalParams = { user, ...(status && { status }) };
   // Use executeGETAPI to handle GET Request logic
@@ -26,4 +26,19 @@ const getOrderListAPI = async (appConfig: APP_CONFIG, status: string, token: any
   return response;
 };
 
-export default getOrderListAPI;
+/**
+ * Cancelling bulk order list
+ *
+ * @async
+ * @function deletOrderApi
+ * @param {string} appConfig - The name of the application.
+ * @param {string} [body] - request body
+ * @param {string} token - The authentication token.
+ * @returns {Promise<any>} - The response from the API call.
+ * @throws {Error} Throws an error if the API call fails.
+ */
+
+export const deletOrderApi = async (appConfig: APP_CONFIG, body: any, token: any): Promise<any> => {
+  const response = await executePOSTAPI(appConfig, 'bulk-order-cancel-api', body, token);
+  return response;
+};
