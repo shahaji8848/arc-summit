@@ -25,7 +25,7 @@ const apiSdkRegistry: any = {
   'remove-single-item-cart-api': { version: '', method: 'delete_products', entity: 'cart' },
   'order-list-api': { version: '', method: 'get_orders', entity: 'order' },
   'order-detail-api': { version: '', method: 'get_order_detail', entity: 'order' },
-  'order-reports-api': { version: '', method: 'report_data', entity: 'sales_order_report' },
+  'order-reports-api': { version: '', method: 'sales_order_report_list', entity: 'sales_order_report' },
 };
 
 export default apiSdkRegistry;
