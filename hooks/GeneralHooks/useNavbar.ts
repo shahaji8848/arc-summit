@@ -9,9 +9,12 @@ import logoutUser from '../../services/api/auth/logout-api';
 import useHandleStateUpdate from './handle-state-update-hook';
 import { useRouter } from 'next/router';
 import { resetStore } from '../../store/slices/auth/logout-slice';
+import { RootState } from '../../store/root-reducer';
+import { addNavbarData } from '../../store/slices/general_slices/navbar-slice';
 const useNavbar = () => {
   const router = useRouter();
   const dispatch = useDispatch();
+  const category = useSelector((state: RootState) => state.NavbarScreen);
   const { isLoading, setIsLoading, errorMessage, setErrMessage }: any = useHandleStateUpdate();
   const { SUMMIT_APP_CONFIG }: any = CONSTANTS;
   const currency_state_from_redux: any = useSelector(currency_selector_state);
@@ -36,30 +39,36 @@ const useNavbar = () => {
   };
 
   const fetchNavbarDataAPI = async () => {
-    let navbarDataAPI: any;
-    setIsLoading(true);
-    try {
-      navbarDataAPI = await getNavbarDataFromAPI(SUMMIT_APP_CONFIG, TokenFromStore?.token);
-      if (navbarDataAPI?.data?.message?.msg === 'success' && navbarDataAPI?.data?.message?.data?.length > 0) {
-        // BELOW CODE IS TO SORT NAVBAR DATA AND STORE IN THE STATE
-        setNavbarData(
-          [...navbarDataAPI?.data?.message?.data].sort(function (a: any, b: any) {
+    if (category?.items?.length !== 0) {
+      setNavbarData(category.items);
+    } else {
+      let navbarDataAPI: any;
+      setIsLoading(true);
+      try {
+        navbarDataAPI = await getNavbarDataFromAPI(SUMMIT_APP_CONFIG, TokenFromStore?.token);
+        if (navbarDataAPI?.data?.message?.msg === 'success' && navbarDataAPI?.data?.message?.data?.length > 0) {
+          const sortedNavbarData = [...navbarDataAPI?.data?.message?.data].sort(function (a: any, b: any) {
             return a.seq - b.seq;
-          })
-        );
-      } else {
-        setNavbarData([]);
+          });
+          dispatch(addNavbarData(sortedNavbarData));
+        } else {
+          setNavbarData([]);
+          setErrMessage(navbarDataAPI?.data?.message?.error);
+        }
+      } catch (error) {
         setErrMessage(navbarDataAPI?.data?.message?.error);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      setErrMessage(navbarDataAPI?.data?.message?.error);
-    } finally {
-      setIsLoading(false);
     }
   };
   useEffect(() => {
     fetchNavbarDataAPI();
   }, []);
+
+  useEffect(() => {
+    setNavbarData(category.items);
+  }, [category]);
 
   useEffect(() => {
     setSelectedCurrencyValue(currency_state_from_redux?.selected_currency_value);

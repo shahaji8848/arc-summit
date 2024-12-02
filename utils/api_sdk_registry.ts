@@ -26,11 +26,11 @@ const apiSdkRegistry: any = {
   'order-list-api': { version: '', method: 'get_orders', entity: 'order' },
   'order-detail-api': { version: '', method: 'get_order_detail', entity: 'order' },
   'user-permission-api': { version: '', method: 'ready_to_dispatch_permission', entity: 'user_permission' },
-  'order-reports-api': { version: '', method: 'report_data', entity: 'sales_order_report' },
   'bulk-order-cancel-api': { version: '', method: 'sales_order_cancel', entity: 'sales_order' },
   'update-customer-name-api': { version: '', method: 'update_customer_name_for_cart', entity: 'cart' },
   'ready-to-dispatch-api': { version: '', method: 'update_soid_completed_status', entity: 'user_permission' },
   'delete-order-api': { version: '', method: 'delete_soid_and_child_item', entity: 'user_permission' },
+  'order-reports-api': { version: '', method: 'sales_order_report_list', entity: 'sales_order_report' },
 };
 
 export default apiSdkRegistry;

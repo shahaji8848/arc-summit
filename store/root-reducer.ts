@@ -1,4 +1,5 @@
 import { combineReducers } from '@reduxjs/toolkit';
+import navbarSlice from './slices/general_slices/navbar-slice';
 import LanguageReducer from './slices/language-slice/language-json-slice';
 import CurrencyReducer from './slices/general_slices/multi-currency-slice';
 import GetAccessTokenReducer from './slices/auth/token-login-slice';
@@ -9,6 +10,7 @@ import cartLocalSlice from './slices/cart-slices/cart-local-slice';
 import { resetStore } from './slices/auth/logout-slice';
 
 const appReducer = combineReducers({
+  NavbarScreen: navbarSlice,
   LanguagesScreen: LanguageReducer,
   CurrencyScreen: CurrencyReducer,
   GetAccessTokenScreen: GetAccessTokenReducer,

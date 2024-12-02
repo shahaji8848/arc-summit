@@ -12,31 +12,31 @@ const useOrderReport = () => {
   const [OrderReportData, setOrderReportData] = useState<any>([]);
   const tokenFromStore: any = useSelector(get_access_token);
   const router: any = useRouter();
-  let reportStatus: any;
+  let status: any;
   const user = localStorage.getItem('user');
   const fetchOrderReportDataFunction = async () => {
     switch (router?.query?.order_report) {
       case 'due-date-reminder-report':
-        reportStatus = 'due_date_orders_list';
+        status = 'due_date_orders_list';
         break;
       case 'review-report':
-        reportStatus = 'review_dispatched_orders_list';
+        status = 'review_dispatched_orders_list';
         break;
       case 'pending-order':
-        reportStatus = 'pending_orders_list';
+        status = 'pending_orders_list';
         break;
       case 'dispatched-orders-report':
-        reportStatus = 'dispatched_orders_list';
+        status = 'dispatched_orders_list';
         break;
       case 'in-process-orders-report':
-        reportStatus = 'in_process_orders_list';
+        status = 'in_process_orders_list';
         break;
       case 'late-orders-report':
-        reportStatus = 'late_orders_list';
+        status = 'late_orders_list';
         break;
     }
     setIsLoading(true);
-    const requestParams = { user, reportStatus };
+    const requestParams = { user, status };
     try {
       const getDispatchOrderData = await getOrderReportAPI(ARC_APP_CONFIG, requestParams, tokenFromStore?.token);
       if (getDispatchOrderData?.status === 200 && getDispatchOrderData?.data?.message?.msg === 'success') {
