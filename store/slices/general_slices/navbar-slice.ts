@@ -6,8 +6,8 @@ interface NavbarState {
 }
 
 const initialState: NavbarState = {
-  items: null,
-  error: null,
+  items: [],
+  error: '',
 };
 
 const navbarSlice = createSlice({
