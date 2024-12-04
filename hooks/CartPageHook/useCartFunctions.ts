@@ -103,20 +103,6 @@ const useAddToCartHook = () => {
     }
   };
 
-  // const updatePurityFunc = async (updatedPurity: any, setPurity: any) => {
-  //   const reqBody = {
-  //     purity: updatedPurity,
-  //     quotation_id: quotation_Id,
-  //   };
-  //   const updateCustName = await updateCustNameAPI(ARC_APP_CONFIG, reqBody, tokenFromStore?.token);
-  //   if (updateCustName?.status === 200) {
-  //     toast.success('Purtiy Updated successfully!');
-  //     setPurity(updatedPurity);
-  //   } else {
-  //     toast.error('Failed to Upadte Purity');
-  //   }
-  // };
-
   return { addToCartItem, placeOrderAPIFunc, RemoveItemCartAPIFunc, cLearCartAPIFunc, disableRemove, updateCartData };
 };
 export default useAddToCartHook;
