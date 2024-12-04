@@ -5,6 +5,7 @@ import fetchProductListingPageFilters from '../../services/api/product-listing-p
 import { CONSTANTS } from '../../services/config/app-config';
 import { get_access_token } from '../../store/slices/auth/token-login-slice';
 import useHandleStateUpdate from '../GeneralHooks/handle-state-update-hook';
+import { json } from 'stream/consumers';
 
 const useProductListingFilterHook = () => {
   const router: any = useRouter();
@@ -14,7 +15,7 @@ const useProductListingFilterHook = () => {
   const tokenFromStore: any = useSelector(get_access_token);
 
   const [filtersData, setFiltersData] = useState<any>([]);
-  const [selectedFilters, setSelectedFilters] = useState<any>();
+  const [selectedFilters, setSelectedFilters] = useState<any>([]);
 
   const fetchFiltersDataFunction = async () => {
     setIsLoading(true);
@@ -62,7 +63,7 @@ const useProductListingFilterHook = () => {
     const filterValue = event.target.value;
     const isChecked = event.target.checked;
 
-    await setSelectedFilters((prevFilters: any) => {
+    setSelectedFilters((prevFilters: any) => {
       let updatedFilters = [...prevFilters];
 
       const existingSectionIndex = prevFilters.findIndex((filter: any) => filter.name === section);
@@ -82,7 +83,7 @@ const useProductListingFilterHook = () => {
       duplicateFilters = [...updatedFilters];
       return updatedFilters;
     });
-    const filterString = duplicateFilters.length > 0 ? `&filter=${encodeURIComponent(JSON.stringify(duplicateFilters))}` : '';
+    const filterString = duplicateFilters?.length > 0 ? `&filter=${encodeURIComponent(JSON.stringify(duplicateFilters))}` : '';
     let url = router.asPath;
     const existingFilterIndex = url.indexOf('&filter=');
     if (existingFilterIndex !== -1) {
