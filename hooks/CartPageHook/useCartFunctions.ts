@@ -10,7 +10,7 @@ import { DeleteItemFromCart } from '../../services/api/cart-apis/remove-item-api
 import { CONSTANTS } from '../../services/config/app-config';
 import { get_access_token } from '../../store/slices/auth/token-login-slice';
 import { addCartList, addItemToCart, clearCart, removeItemFromCart, selectCart } from '../../store/slices/cart-slices/cart-local-slice';
-import updateCustNameAPI from '../../services/api/cart-apis/update-customer-name';
+import updateCartDataAPI from '../../services/api/cart-apis/update-customer-name';
 
 const useAddToCartHook = () => {
   const dispatch = useDispatch();
@@ -88,19 +88,21 @@ const useAddToCartHook = () => {
     }
   };
 
-  const updateCustNameFunc = async (custName: any) => {
+  const updateCartData = async (custName: any, updatedPurity: any, setPurity: any) => {
     const reqBody = {
+      purity: updatedPurity,
       customer_name: custName,
       quotation_id: quotation_Id,
     };
-    const updateCustName = await updateCustNameAPI(ARC_APP_CONFIG, reqBody, tokenFromStore?.token);
+    const updateCustName = await updateCartDataAPI(ARC_APP_CONFIG, reqBody, tokenFromStore?.token);
     if (updateCustName?.status === 200) {
-      toast.success('Customer updated successfully!');
+      toast.success(' updated successfully!');
+      setPurity(updatedPurity);
     } else {
-      toast.error('Failed to Upadte Customer');
+      toast.error('Failed to Upadte');
     }
   };
 
-  return { addToCartItem, placeOrderAPIFunc, RemoveItemCartAPIFunc, cLearCartAPIFunc, disableRemove, updateCustNameFunc };
+  return { addToCartItem, placeOrderAPIFunc, RemoveItemCartAPIFunc, cLearCartAPIFunc, disableRemove, updateCartData };
 };
 export default useAddToCartHook;

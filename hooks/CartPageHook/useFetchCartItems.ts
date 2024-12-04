@@ -5,6 +5,7 @@ import { CONSTANTS } from '../../services/config/app-config';
 import { get_access_token } from '../../store/slices/auth/token-login-slice';
 import { addCartList, selectCart } from '../../store/slices/cart-slices/cart-local-slice';
 import useHandleStateUpdate from '../GeneralHooks/handle-state-update-hook';
+import { callGetAPI } from '../../utils/http-methods';
 const useFetchCartItems = () => {
   const dispatch = useDispatch();
   const { ARC_APP_CONFIG }: any = CONSTANTS;
@@ -12,6 +13,7 @@ const useFetchCartItems = () => {
   const { isLoading, setIsLoading, errorMessage, setErrMessage }: any = useHandleStateUpdate();
   const local_cust_name = localStorage.getItem('cust_name');
   const tokenFromStore: any = useSelector(get_access_token);
+  const [purity, setPurity] = useState<any[]>([]);
   const { cartCount } = useSelector(selectCart);
 
   const extractProductCodes = (data: any[]) => {
@@ -49,8 +51,21 @@ const useFetchCartItems = () => {
       setIsLoading(false);
     }
   };
+
+  const getPurityValues = async () => {
+    const url = `${CONSTANTS.API_BASE_URL}/api/resource/Purity`;
+    const fetchPurityValues = await callGetAPI(url, tokenFromStore.token);
+    return fetchPurityValues;
+  };
+
+  const fetchPurityValues = async () => {
+    const values = await getPurityValues();
+    setPurity(values?.data?.data);
+  };
+
   useEffect(() => {
     fetchCartListingData();
+    fetchPurityValues();
   }, []);
 
   return {
@@ -59,6 +74,7 @@ const useFetchCartItems = () => {
     isLoading,
     errorMessage,
     cartCount,
+    purity,
   };
 };
 export default useFetchCartItems;
