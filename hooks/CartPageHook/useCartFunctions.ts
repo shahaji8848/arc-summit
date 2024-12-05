@@ -98,6 +98,7 @@ const useAddToCartHook = () => {
     if (updateCustName?.status === 200) {
       toast.success(' updated successfully!');
       setPurity(updatedPurity);
+      localStorage.setItem('locaalPurity', updatedPurity);
     } else {
       toast.error('Failed to Upadte');
     }
