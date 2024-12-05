@@ -108,7 +108,7 @@ const useOrderDetailHook = () => {
           ({ colour, qty, size, weight } = orderDetails[0]);
         }
         const qtySizeList = orderDetails.map((order: any) => ({
-          qty: order.qty,
+          quantity: order.qty,
           size: order.size,
           colour: order.colour,
         }));
