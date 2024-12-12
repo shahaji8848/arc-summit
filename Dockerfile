@@ -1,47 +1,40 @@
-# Use lightweight Ubuntu 22.04 as the base image
+# Stage 1: Build the application
 FROM ubuntu:22.04 AS builder
 
-# Set environment variables for non-interactive installation
-ENV DEBIAN_FRONTEND=noninteractive
+# Set environment variables to run as root
+USER root
 
-# Update and install required tools for building
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install required dependencies: curl, git, npm, and other packages
+RUN apt-get update && \
+    apt-get install -y \
     curl \
     git \
+    npm \
     build-essential \
     python3 \
-    sudo \
-    lsb-release \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    python3-pip \
+    && apt-get clean
 
-# Install Node.js v20 (with lsb-release to resolve potential issues)
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Verify Node.js and npm versions
-RUN node -v && npm -v
-
-# Create a user 'ubuntu' with the password 'password'
-RUN useradd -m -s /bin/bash ubuntu && echo "ubuntu:password" | chpasswd && adduser ubuntu sudo
+# Install Node.js using nvm (Node Version Manager)
+RUN curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash \
+    && source ~/.profile \
+    && nvm install 20 \
+    && nvm use 20
 
 # Set the working directory in the container
-WORKDIR /home/ubuntu/app
-
-# Switch to user 'ubuntu'
-USER ubuntu
+WORKDIR /app
 
 # Clone the arc-summit repository
-RUN git clone --branch arc-summit-staging https://github.com/karan1633/arc-summit.git arc-summit
+RUN git clone --branch arc-summit-staging https://github.com/karan1633/arc-summit
 
 # Set the working directory to the themes folder inside arc-summit
-WORKDIR /home/ubuntu/app/arc-summit/themes
+WORKDIR /app/arc-summit/themes
 
 # Clone the fancy-gold repository
-RUN git clone --branch develop https://github.com/summit-webapp-themes/fancy-gold.git fancy-gold
+RUN git clone --branch develop https://github.com/summit-webapp-themes/fancy-gold
 
 # Set the working directory to the fancy-gold theme folder
-WORKDIR /home/ubuntu/app/arc-summit/themes/fancy-gold
+WORKDIR /app/arc-summit/themes/fancy-gold
 
 # Ensure the theme installation script is executable
 RUN chmod +x install-theme.sh
@@ -49,29 +42,29 @@ RUN chmod +x install-theme.sh
 # Run the theme installation script
 RUN /bin/bash install-theme.sh
 
-# Return to the project root directory
-WORKDIR /home/ubuntu/app/arc-summit
+# Change directory back to the root of your project
+WORKDIR /app/arc-summit
 
-# Copy package.json and package-lock.json first to leverage Docker caching
+# Copy package.json and package-lock.json to install dependencies
 COPY package*.json ./
 
-# Install dependencies
+# Install project dependencies with legacy peer dependencies to avoid version conflicts
 RUN npm install --legacy-peer-deps
 
-# Install sharp separately (if required for your project)
-RUN npm install sharp
+# Install sharp separately
+RUN npm i sharp
 
-# Copy the rest of the application files
+# Copy the rest of your application's files to the container
 COPY . .
 
-# Build the React.js application
-RUN npm run build
+# Install build the React.js application
+RUN npm install build
 
-# Install PM2 globally
+# Install PM2 (Process Manager for Node.js)
 RUN npm install -g pm2
 
-# Expose the port your React application will run on
+# Expose the port the React.js application will run on
 EXPOSE 3000
 
-# Start the application using PM2 with a custom process name and port
-CMD ["pm2-runtime", "start", "npm", "--name", "arc-summit", "--", "run", "start"]
+# Start the application using PM2 (to run it in the background)
+CMD ["pm2", "start", "npm", "--name", "app-name", "--", "start"]
