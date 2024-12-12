@@ -1,31 +1,47 @@
-# Use an official Node.js runtime as the base image
-FROM node:20 AS build
+# Stage 1: Build the application
+FROM node:22 AS builder
+
 # Set the working directory in the container
 WORKDIR /app
-# Clone the Summit repository
+
+# Clone the arc-summit repository
 RUN git clone --branch arc-summit-staging https://github.com/karan1633/arc-summit
-# Change directory to the 'theme' folder
-WORKDIR /app/summit/themes
-# Clone the fancy gold repository
+
+# Set the working directory to the themes folder inside arc-summit
+WORKDIR /app/arc-summit/themes
+
+# Clone the fancy-gold repository
 RUN git clone --branch develop https://github.com/summit-webapp-themes/fancy-gold
-# Change directory to the 'fancy-gold' folder
-WORKDIR /app/summit/themes/fancy-gold
+
+# Set the working directory to the fancy-gold theme folder
+WORKDIR /app/arc-summit/themes/fancy-gold
+
+# Ensure the theme installation script is executable
+RUN chmod +x install-theme.sh
+
 # Run the theme installation script
 RUN /bin/bash install-theme.sh
+
 # Change directory back to the root of your project
-WORKDIR /app/summit
+WORKDIR /app/arc-summit
+
 # Copy package.json and package-lock.json to install dependencies
 COPY package*.json ./
+
 # Install project dependencies
-RUN npm install
+RUN npm install --legacy-peer-deps
+
+# Install sharp separately
 RUN npm i sharp
-# Delete the 'themes' folder to clean up
-RUN rm -rf /app/summit/themes
+
 # Copy the rest of your application's files to the container
 COPY . .
-# Build the Next.js application
-RUN npm run build
+
+# Install postcss and build the Next.js application
+RUN npm install postcss@latest postcss-preset-env@latest && npm run build --no-cache
+
 # Expose the port your Next.js application will run on
 EXPOSE 3000
-# Start the Next.js application
+
+# Bind to 0.0.0.0 to allow access from outside the container.
 CMD ["npm", "start"]
