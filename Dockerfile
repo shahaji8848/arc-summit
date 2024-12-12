@@ -1,20 +1,40 @@
 # Stage 1: Build the application
-FROM node:22 AS builder
+FROM ubuntu:22.04 AS builder
+
+# Set environment variables for non-interactive installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Update and install required packages
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    build-essential \
+    python3 \
+    python3-pip \
+    nodejs \
+    npm \
+    && apt-get clean
+
+# Create a user 'ubuntu' with the password 'password'
+RUN useradd -m -s /bin/bash ubuntu && echo "ubuntu:password" | chpasswd && adduser ubuntu sudo
+
+# Switch to user 'ubuntu'
+USER ubuntu
 
 # Set the working directory in the container
-WORKDIR /app
+WORKDIR /home/ubuntu/app
 
 # Clone the arc-summit repository
 RUN git clone --branch arc-summit-staging https://github.com/karan1633/arc-summit
 
 # Set the working directory to the themes folder inside arc-summit
-WORKDIR /app/arc-summit/themes
+WORKDIR /home/ubuntu/app/arc-summit/themes
 
 # Clone the fancy-gold repository
 RUN git clone --branch develop https://github.com/summit-webapp-themes/fancy-gold
 
 # Set the working directory to the fancy-gold theme folder
-WORKDIR /app/arc-summit/themes/fancy-gold
+WORKDIR /home/ubuntu/app/arc-summit/themes/fancy-gold
 
 # Ensure the theme installation script is executable
 RUN chmod +x install-theme.sh
@@ -23,25 +43,26 @@ RUN chmod +x install-theme.sh
 RUN /bin/bash install-theme.sh
 
 # Change directory back to the root of your project
-WORKDIR /app/arc-summit
+WORKDIR /home/ubuntu/app/arc-summit
 
-# Copy package.json and package-lock.json to install dependencies
+# Install dependencies
 COPY package*.json ./
-
-# Install project dependencies
 RUN npm install --legacy-peer-deps
 
 # Install sharp separately
-RUN npm i sharp
+RUN npm install sharp
 
-# Copy the rest of your application's files to the container
+# Copy the rest of the application files
 COPY . .
 
 # Install postcss and build the Next.js application
 RUN npm install postcss@latest postcss-preset-env@latest && npm run build --no-cache
 
+# Install PM2 globally
+RUN npm install -g pm2
+
 # Expose the port your Next.js application will run on
 EXPOSE 3000
 
-# Bind to 0.0.0.0 to allow access from outside the container.
-CMD ["npm", "start"]
+# Command to start the application using PM2
+CMD ["pm2-runtime", "start", "npm", "--", "start"]
