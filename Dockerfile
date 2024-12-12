@@ -15,11 +15,12 @@ RUN apt-get update && \
     python3-pip \
     && apt-get clean
 
-# Install Node.js using nvm (Node Version Manager)
-RUN curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash \
-    && source ~/.profile \
+# Install Node.js using NVM (Node Version Manager)
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash \
+    && . ~/.nvm/nvm.sh \
     && nvm install 20 \
-    && nvm use 20
+    && nvm use 20 \
+    && nvm alias default 20
 
 # Set the working directory in the container
 WORKDIR /app
@@ -57,14 +58,20 @@ RUN npm i sharp
 # Copy the rest of your application's files to the container
 COPY . .
 
-# Install build the React.js application
-RUN npm install build
+# Install postcss and build the Next.js application
+RUN npm install postcss@latest postcss-preset-env@latest && npm run build --no-cache
 
 # Install PM2 (Process Manager for Node.js)
 RUN npm install -g pm2
 
-# Expose the port the React.js application will run on
+# Install Nginx (Web server and reverse proxy)
+RUN apt-get install -y nginx
+
+# Expose the port the Next.js application will run on
 EXPOSE 3000
+
+# Configure Nginx as a reverse proxy for the application (optional, configure as needed)
+COPY nginx.conf /etc/nginx/nginx.conf
 
 # Start the application using PM2 (to run it in the background)
 CMD ["pm2", "start", "npm", "--name", "app-name", "--", "start"]
