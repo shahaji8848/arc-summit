@@ -1,56 +1,43 @@
-# Use an official Node.js runtime as a parent image
-FROM node:20
+# Use Ubuntu 22.04 as the base image
+FROM ubuntu:22.04
 
-# Set the working directory inside the container
-WORKDIR /app
+# Set environment variables to prevent interactive prompts during package installations
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Clone the arc-summit repository (adjust path if necessary)
-RUN git clone --branch arc-summit-staging https://github.com/karan1633/arc-summit
+# Update and install required packages
+RUN apt update && \
+    apt install -y curl git npm
 
-# Set the working directory to the themes folder inside arc-summit
-WORKDIR /app/arc-summit/themes
+# Install nvm, Node.js 20, and pm2
+RUN curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash && \
+    source ~/.profile && \
+    nvm install 20 && \
+    npm install -g pm2
 
-# Clone the fancy-gold repository
-RUN git clone --branch develop https://github.com/summit-webapp-themes/fancy-gold
+# Create and navigate to the app directory
+RUN mkdir -p /app/arc-summit && \
+    cd /app/arc-summit
 
-# Set the working directory to the fancy-gold theme folder
-WORKDIR /app/arc-summit/themes/fancy-gold
+# Clone the arc-summit repository
+RUN git clone --branch arc-summit-staging https://github.com/karan1633/arc-summit /app/arc-summit
 
-# Ensure the theme installation script is executable
-RUN chmod +x install-theme.sh
+# Clone the fancy-gold theme repository
+RUN git clone --branch develop https://github.com/summit-webapp-themes/fancy-gold /app/arc-summit/themes/fancy-gold
 
-# Run the theme installation script
-RUN /bin/bash install-theme.sh
+# Install the theme
+RUN chmod +x /app/arc-summit/themes/fancy-gold/install-theme.sh && \
+    /app/arc-summit/themes/fancy-gold/install-theme.sh
 
-# Change directory back to the root of your project
+# Install dependencies for the app
 WORKDIR /app/arc-summit
-
-# Copy package.json and package-lock.json to the container (this ensures npm install works correctly)
-# COPY package*.json ./
-
-# Install project dependencies
-RUN npm install --legacy-peer-deps
-
-# Install sharp separately to avoid issues during installation
-RUN npm install sharp --no-save
-
-# Copy the rest of your application's files to the container
-COPY . .
-
-# Install postcss and build the application
-RUN npm install postcss@latest postcss-preset-env@latest
+RUN npm install --legacy-peer-deps && \
+    npm install sharp
 
 # Build the application
-RUN npm run build --no-cache
+RUN npm run build
 
-# Ensure all services bind to 0.0.0.0 instead of localhost by overriding environment variables
-# ENV HOST 0.0.0.0
-# ENV HOST 109.199.98.127
-ENV HOST 127.0.0.1
-ENV PORT 3000
-
-# Expose the ports the app uses (including any additional ports required for internal services)
+# Expose port 3000
 EXPOSE 3000
 
-# Command to run the application
-CMD ["npm", "start"]
+# Start the application using pm2
+CMD pm2 start npm --name "summit" -- run start -- --port 3000
