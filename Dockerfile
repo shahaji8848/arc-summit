@@ -1,10 +1,10 @@
-# Stage 1: Build the application
-FROM node:22 AS builder
+# Use an official Node.js runtime as a parent image
+FROM node:20
 
-# Set the working directory in the container
+# Set the working directory inside the container
 WORKDIR /app
 
-# Clone the arc-summit repository
+# Clone the arc-summit repository (adjust path if necessary)
 RUN git clone --branch arc-summit-staging https://github.com/karan1633/arc-summit
 
 # Set the working directory to the themes folder inside arc-summit
@@ -25,20 +25,26 @@ RUN /bin/bash install-theme.sh
 # Change directory back to the root of your project
 WORKDIR /app/arc-summit
 
+# Copy package.json and package-lock.json to the container (this ensures npm install works correctly)
+#COPY package*.json ./
+
 # Install project dependencies
 RUN npm install --legacy-peer-deps
 
-# Install sharp separately
-RUN npm i sharp
+# Install sharp separately to avoid issues during installation
+RUN npm install sharp --no-save
 
 # Copy the rest of your application's files to the container
 COPY . .
 
 # Install postcss and build the Next.js application
-RUN npm install postcss@latest postcss-preset-env@latest && npm run build --no-cache
+RUN npm install postcss@latest postcss-preset-env@latest
 
-# Expose the port your Next.js application will run on
+# Build the Next.js application
+RUN npm run build --no-cache
+
+# Expose the port the app runs on
 EXPOSE 3000
 
-# Bind to 0.0.0.0 to allow access from outside the container.
+# Command to run the application
 CMD ["npm", "start"]
