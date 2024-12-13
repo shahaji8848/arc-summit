@@ -48,7 +48,7 @@ ENV HOST 0.0.0.0
 ENV PORT 3000
 
 # Expose the ports the app uses (including any additional ports required for internal services)
-EXPOSE 3000 40811
+EXPOSE 3000
 
 # Command to run the application
 CMD ["npm", "start"]
