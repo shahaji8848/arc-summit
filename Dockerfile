@@ -37,10 +37,10 @@ RUN npm install sharp --no-save
 # Copy the rest of your application's files to the container
 COPY . .
 
-# Install postcss and build the Next.js application
+# Install postcss and build the application
 RUN npm install postcss@latest postcss-preset-env@latest
 
-# Build the Next.js application
+# Build the application
 RUN npm run build --no-cache
 
 # Expose the port the app runs on
