@@ -26,7 +26,7 @@ RUN /bin/bash install-theme.sh
 WORKDIR /app/arc-summit
 
 # Copy package.json and package-lock.json to the container (this ensures npm install works correctly)
-#COPY package*.json ./
+# COPY package*.json ./
 
 # Install project dependencies
 RUN npm install --legacy-peer-deps
@@ -43,8 +43,12 @@ RUN npm install postcss@latest postcss-preset-env@latest
 # Build the application
 RUN npm run build --no-cache
 
-# Expose the port the app runs on
-EXPOSE 3000
+# Ensure all services bind to 0.0.0.0 instead of localhost by overriding environment variables
+ENV HOST 0.0.0.0
+ENV PORT 3000
+
+# Expose the ports the app uses (including any additional ports required for internal services)
+EXPOSE 3000 40811
 
 # Command to run the application
 CMD ["npm", "start"]
