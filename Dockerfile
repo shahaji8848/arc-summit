@@ -45,6 +45,7 @@ RUN npm run build --no-cache
 
 # Ensure all services bind to 0.0.0.0 instead of localhost by overriding environment variables
 ENV HOST 0.0.0.0
+ENV HOST 109.199.98.127
 ENV PORT 3000
 
 # Expose the ports the app uses (including any additional ports required for internal services)
