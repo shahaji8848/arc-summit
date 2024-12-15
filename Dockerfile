@@ -1,57 +1,57 @@
-# Use Ubuntu 22.04 as the base image
-FROM ubuntu:22.04
+# Stage 1: Build the application
+FROM node:22 AS builder
 
-# Set environment variables to prevent interactive prompts during package installations
-ENV DEBIAN_FRONTEND=noninteractive
-
-# Install required packages
-RUN apt update && \
-    apt install -y curl git npm bash
-
-# Install nvm and Node.js version 20
-RUN curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash && \
-    export NVM_DIR="$HOME/.nvm" && \
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
-    nvm install 20 && \
-    nvm use 20 && \
-    # Remove existing node and npm binaries if they exist
-    rm -f /usr/bin/node /usr/bin/npm && \
-    ln -s "$NVM_DIR/versions/node/$(nvm version)/bin/node" /usr/bin/node && \
-    ln -s "$NVM_DIR/versions/node/$(nvm version)/bin/npm" /usr/bin/npm
-
-# Verify Node.js and npm versions
-RUN node -v && npm -v
-
-# Create and navigate to the app directory
-RUN mkdir -p /app/arc-summit && \
-    cd /app/arc-summit
+# Set the working directory in the container
+WORKDIR /app
 
 # Clone the arc-summit repository
-RUN git clone --branch arc-summit-staging https://github.com/karan1633/arc-summit /app/arc-summit
+RUN git clone --branch arc-summit-staging https://github.com/karan1633/arc-summit
 
-# Clone the fancy-gold theme repository
-RUN git clone --branch develop https://github.com/summit-webapp-themes/fancy-gold /app/arc-summit/themes/fancy-gold
+# Set the working directory to the themes folder inside arc-summit
+WORKDIR /app/arc-summit/themes
 
-# Make the install-theme.sh script executable
-RUN chmod +x /app/arc-summit/themes/fancy-gold/install-theme.sh
+# Clone the fancy-gold repository
+RUN git clone --branch develop https://github.com/summit-webapp-themes/fancy-gold
 
-# Suppress errors for missing files during theme installation
-RUN /app/arc-summit/themes/fancy-gold/install-theme.sh || echo "Some files are missing, skipping those steps."
+# Set the working directory to the fancy-gold theme folder
+WORKDIR /app/arc-summit/themes/fancy-gold
+
+# Ensure the theme installation script is executable
+RUN chmod +x install-theme.sh
+
+# Run the theme installation script
+RUN /bin/bash install-theme.sh
 
 # Change directory back to the root of your project
 WORKDIR /app/arc-summit
 
-# Clean npm cache and delete internal npm directories
-#RUN npm cache clean --force || true && npm install --legacy-peer-deps || true && npm install sharp || true
-RUN npm cache clean --force && npm install
+# Copy package.json and package-lock.json to install dependencies
+COPY package*.json ./
+
+# Install project dependencies
+RUN npm install --legacy-peer-deps
+
+# Install sharp separately
+RUN npm i sharp
+
 # Copy the rest of your application's files to the container
 COPY . .
 
-# Build the application
-RUN npm run build
+# Install postcss and build the Next.js application
+RUN npm install postcss@latest postcss-preset-env@latest && npm run build --no-cache
 
-# Expose port 3000
-EXPOSE 3000
+# Create a start script to dynamically set the API_URL
+RUN echo '#!/bin/bash\n\
+PORT=$(docker port $(hostname) 3000 | sed "s/.*://")\n\
+export API_URL="http://109.199.98.127:$PORT"\n\
+echo "Starting application with API_URL=$API_URL"\n\
+npm start' > /start.sh
 
-# Start the application using pm2
-CMD pm2 start npm --name "summit" -- run start -- --port 3000
+# Make the start script executable
+RUN chmod +x /start.sh
+
+# Expose the port your Next.js application will run on
+EXPOSE 3000  # Expose the base port your app uses
+
+# Bind to 0.0.0.0 to allow access from outside the container.
+CMD ["/start.sh"]
