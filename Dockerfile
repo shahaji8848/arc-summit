@@ -26,7 +26,7 @@ RUN /bin/bash install-theme.sh
 WORKDIR /app/arc-summit
 
 # Copy package.json and package-lock.json to install dependencies
-COPY package*.json ./
+#COPY package*.json ./
 
 # Install project dependencies
 RUN npm install --legacy-peer-deps
@@ -40,18 +40,8 @@ COPY . .
 # Install postcss and build the Next.js application
 RUN npm install postcss@latest postcss-preset-env@latest && npm run build --no-cache
 
-# Create a start script to dynamically set the API_URL
-RUN echo '#!/bin/bash\n\
-PORT=$(docker port $(hostname) 3000 | sed "s/.*://")\n\
-export API_URL="http://109.199.98.127:$PORT"\n\
-echo "Starting application with API_URL=$API_URL"\n\
-npm start' > /start.sh
-
-# Make the start script executable
-RUN chmod +x /start.sh
-
 # Expose the port your Next.js application will run on
-EXPOSE 3000  # Expose the base port your app uses
+EXPOSE 3000
 
 # Bind to 0.0.0.0 to allow access from outside the container.
-CMD ["/start.sh"]
+CMD ["npm", "start"]
