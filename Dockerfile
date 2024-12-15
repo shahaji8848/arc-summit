@@ -44,7 +44,7 @@ RUN npm install postcss@latest postcss-preset-env@latest
 RUN npm run build --no-cache
 
 # Expose the port the app runs on
-EXPOSE 3000
+EXPOSE 3038
 
 # Command to run the application
 CMD ["npm", "start"]
